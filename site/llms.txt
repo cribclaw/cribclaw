@@ -1,0 +1,38 @@
+# CribClaw
+
+> Your newborn's 24/7 AI agent. Open-source baby tracking via Telegram.
+
+CribClaw is a self-hosted, privacy-first baby tracking system that runs as a Telegram bot. Parents log feeds, diapers, sleep, milestones, and more using natural language — no forms, no buttons, no menus. Just talk.
+
+## What It Does
+
+- Natural language baby event logging via Telegram messages or voice notes
+- Tracks: feeds (bottle/breast), diapers, sleep, milestones, pumping, tummy time, solids, growth, baths, notes
+- Visual daily/weekly summary charts generated as PNG
+- Smart reminders and predictions (next feed time, patterns)
+- Multi-caregiver support via Telegram group chat
+- CSV import from Huckleberry, Glow, and other baby tracking apps
+- All data stored locally in SQLite — nothing leaves your machine
+
+## Architecture
+
+- Built on NanoClaw, a personal AI messaging framework
+- Single Node.js process connecting to Telegram
+- Claude AI agent running in Docker containers for conversation
+- Fast regex-based event extraction for instant logging
+- LLM classification fallback for ambiguous messages
+
+## Tech Stack
+
+- TypeScript / Node.js
+- SQLite (via better-sqlite3)
+- Telegram Bot API
+- Anthropic Claude API
+- Docker (for agent containers)
+- Remotion (for promo videos)
+
+## Links
+
+- Website: https://cribclaw.com
+- GitHub: https://github.com/nathanseltzer/cribclaw
+- License: AGPL-3.0

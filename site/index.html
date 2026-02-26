@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CribClaw — Your Newborn's 24/7 AI Agent | Open-Source Baby Tracker</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="canonical" href="https://cribclaw.com/">
+<meta name="description" content="Free, open-source baby tracking via Telegram. Log feeds, diapers, sleep, and milestones with natural language. Self-hosted, private, AI-powered. No forms, no buttons — just talk.">
+<meta name="keywords" content="baby tracker, newborn tracking, baby app, open source, Telegram bot, AI baby tracker, feed tracker, diaper tracker, sleep tracker, breastfeeding tracker, self-hosted, CribClaw, NanoClaw">
+<meta name="author" content="Nathan Seltzer">
+<meta name="robots" content="index, follow">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cribclaw.com/">
+<meta property="og:title" content="CribClaw — Your Newborn's 24/7 AI Agent">
+<meta property="og:description" content="Free, open-source baby tracking via Telegram. Log feeds, diapers, sleep with natural language. Self-hosted and private.">
+<meta property="og:image" content="https://cribclaw.com/img/cribclaw-hero.png">
+<meta property="og:site_name" content="CribClaw">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@n_seltzer">
+<meta name="twitter:title" content="CribClaw — Your Newborn's 24/7 AI Agent">
+<meta name="twitter:description" content="Free, open-source baby tracking via Telegram. Log feeds, diapers, sleep with natural language. Self-hosted and private.">
+<meta name="twitter:image" content="https://cribclaw.com/img/cribclaw-hero.png">
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-X1LQB9XB4K"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-X1LQB9XB4K');
+</script>
+
+<!-- FAQ Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I set up CribClaw?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Create a Telegram bot via @BotFather, set TELEGRAM_BOT_TOKEN and ANTHROPIC_API_KEY in your .env file, then run npm start. Send the bot a message and it will auto-register your chat."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I import data from Huckleberry, Glow, or another tracker?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Export a CSV from your current app, then run: npm run cribclaw:import -- path/to/export.csv. CribClaw auto-detects Huckleberry, Glow, Baby Tracker, and BabyBuddy formats. You can also send a CSV file directly in the Telegram chat."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my data private?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "CribClaw is fully self-hosted. Your data lives in a SQLite file on your machine. Nothing is sent to a third-party server. No analytics, no tracking, no accounts."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does it cost to run?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "CribClaw itself is free and open-source (AGPL-3.0). The only costs are an Anthropic API key (typically a few cents per day) and whatever machine you run it on. There is no subscription."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does CribClaw provide medical advice?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. CribClaw is a behavioral tracker for informational purposes only. It does not diagnose conditions or provide medical guidance. Always consult your pediatrician for medical decisions."
+      }
+    }
+  ]
+}
+</script>
+
+<!-- Software Application Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "CribClaw",
+  "description": "Your newborn's 24/7 AI agent. Open-source baby tracking via Telegram.",
+  "url": "https://cribclaw.com",
+  "applicationCategory": "HealthApplication",
+  "operatingSystem": "Linux, macOS",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Nathan Seltzer",
+    "url": "https://x.com/n_seltzer"
+  },
+  "license": "https://www.gnu.org/licenses/agpl-3.0.html",
+  "isAccessibleForFree": true
+}
+</script>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f5f0e8;
+  --bg-raised: #ebe5da;
+  --bg-subtle: #eee9e0;
+  --text: #2a2520;
+  --text-dim: #6b6358;
+  --text-faint: #9a9085;
+  --accent: #b5713a;
+  --accent-dim: #8a5528;
+  --green: #3d8a2e;
+  --green-dim: rgba(61, 138, 46, 0.1);
+  --red-dim: rgba(180, 60, 40, 0.06);
+  --border: rgba(0, 0, 0, 0.08);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Georgia", "Times New Roman", serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono {
+  font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+}
+
+/* ---- Layout ---- */
+.page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---- Opener ---- */
+.opener {
+  padding: 20vh 0 12vh;
+  text-align: center;
+}
+
+.opener h1 {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: clamp(2.8rem, 8vw, 4.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+
+.opener .tagline {
+  font-size: 1.25rem;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 12px;
+}
+
+.opener .sub {
+  font-size: 0.95rem;
+  color: var(--text-faint);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* ---- The conversation (hero) ---- */
+.conversation {
+  margin: 0 auto;
+  padding: 48px 0 64px;
+  max-width: 480px;
+}
+
+.conversation .label {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.msg {
+  margin-bottom: 12px;
+  display: flex;
+}
+
+.msg--you { justify-content: flex-end; }
+.msg--bot { justify-content: flex-start; }
+
+.bubble {
+  max-width: 85%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.msg--you .bubble {
+  background: #3d7a4a;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.msg--bot .bubble {
+  background: var(--bg-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+
+.msg--bot .bubble .event-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-right: 4px;
+  margin-bottom: 4px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.tag-feed { background: rgba(22, 163, 74, 0.12); color: #15803d; }
+.tag-diaper { background: rgba(14, 165, 233, 0.12); color: #0369a1; }
+.tag-sleep { background: rgba(124, 58, 237, 0.12); color: #6d28d9; }
+.tag-reminder { background: rgba(217, 119, 6, 0.1); color: #b45309; }
+
+.timestamp {
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  text-align: center;
+  margin: 20px 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ---- Sections ---- */
+.section {
+  padding: 80px 0;
+  border-top: 1px solid var(--border);
+}
+
+.section h2 {
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 32px;
+  line-height: 1.35;
+}
+
+.section h2 em {
+  color: var(--accent);
+  font-style: italic;
+}
+
+/* ---- The point ---- */
+.the-point p {
+  font-size: 1.15rem;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+}
+
+.the-point p strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ---- Versus ---- */
+.vs-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.vs-table th,
+.vs-table td {
+  padding: 12px 0;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+  vertical-align: top;
+}
+
+.vs-table th {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding-bottom: 8px;
+}
+
+.vs-table td:first-child {
+  color: var(--text-dim);
+  font-style: italic;
+  width: 25%;
+  padding-right: 16px;
+}
+
+.vs-table .them {
+  color: var(--text-faint);
+  width: 35%;
+  padding-right: 16px;
+}
+
+.vs-table .us {
+  color: var(--text);
+}
+
+/* ---- How ---- */
+.how-steps {
+  list-style: none;
+  counter-reset: steps;
+}
+
+.how-steps li {
+  counter-increment: steps;
+  position: relative;
+  padding-left: 48px;
+  margin-bottom: 28px;
+  font-size: 1rem;
+  color: var(--text-dim);
+}
+
+.how-steps li::before {
+  content: counter(steps);
+  position: absolute;
+  left: 0;
+  top: 2px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--accent-dim);
+  border-radius: 50%;
+}
+
+.how-steps li strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ---- Install ---- */
+.install-block {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px 28px;
+  margin-top: 24px;
+  overflow-x: auto;
+}
+
+.install-block pre {
+  font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.8;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.install-block .cmd { color: var(--text); }
+.install-block .cmt { color: var(--text-faint); }
+
+/* ---- FAQ ---- */
+.faq details {
+  border-bottom: 1px solid var(--border);
+  padding: 16px 0;
+}
+.faq summary {
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.faq summary::before {
+  content: "+";
+  font-size: 1.1rem;
+  color: var(--accent);
+  font-weight: 700;
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+.faq details[open] summary::before { content: "\2212"; }
+.faq details p {
+  padding: 12px 0 4px 32px;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+.faq details code {
+  font-family: "SF Mono", "Fira Code", Menlo, Consolas, monospace;
+  font-size: 0.82em;
+  background: var(--bg-subtle);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--text);
+}
+
+/* ---- Links section ---- */
+.links {
+  padding: 64px 0;
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+
+.links a {
+  display: inline-block;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 12px 24px;
+  border: 1px solid var(--accent-dim);
+  border-radius: 6px;
+  margin: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.links a:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ---- Footer ---- */
+footer {
+  padding: 48px 0;
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+
+footer p {
+  font-size: 0.8rem;
+  color: var(--text-faint);
+  line-height: 2;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+footer .disclaimer {
+  max-width: 500px;
+  margin: 0 auto 24px;
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .opener { padding: 14vh 0 8vh; }
+  .section { padding: 56px 0; }
+  .vs-table td:first-child { width: 30%; }
+  .vs-table .them { width: 30%; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ---- Hero Image ---- -->
+  <div style="padding-top:48px; text-align:center;">
+    <img src="img/cribclaw-hero.png" alt="CribClaw - pixel art lobster sleeping in a crib" style="max-width:100%; height:auto; border-radius:12px; border:1px solid var(--border);">
+  </div>
+
+  <!-- ---- Opener ---- -->
+  <div class="opener" style="padding-top:48px;">
+    <h1>CribClaw</h1>
+    <p class="tagline">Your newborn's 24/7 AI agent</p>
+    <p class="sub">Open-source baby tracking via Telegram.<br>Self-hosted. Private. Free.</p>
+  </div>
+
+  <!-- ---- The Conversation ---- -->
+  <div class="conversation">
+    <div class="label">A real conversation at 3:12am</div>
+
+    <div class="msg msg--you">
+      <div class="bubble">fed 2oz, medium poop diaper, she fell back asleep at 3:00</div>
+    </div>
+
+    <div class="msg msg--bot">
+      <div class="bubble">
+        <span class="event-tag tag-feed">feed</span>
+        <span class="event-tag tag-diaper">diaper</span>
+        <span class="event-tag tag-sleep">sleep</span>
+        <br>3 events logged. Feed: 2oz bottle at 3:12am. Diaper: medium poop. Sleep started at 3:00am.
+      </div>
+    </div>
+
+    <div class="timestamp">&#183;&#183;&#183; 6 hours later &#183;&#183;&#183;</div>
+
+    <div class="msg msg--you">
+      <div class="bubble">how did last night go</div>
+    </div>
+
+    <div class="msg msg--bot">
+      <div class="bubble">
+        Last night: 4 feeds (2oz + 1.5oz + 2oz + 2oz), 5 diapers (4 poops, 1 pee-only), longest sleep stretch 2h 40m. Total intake: 7.5oz.
+      </div>
+    </div>
+  </div>
+
+  <!-- ---- The Point ---- -->
+  <div class="section the-point">
+    <h2>Baby tracking apps make you <em>tap buttons at 3am</em>. CribClaw lets you just talk.</h2>
+
+    <p>Every other baby app gives you forms. Open the app, find the right screen, tap the tiny button, fill in the amount, pick the time, submit. Then do it again for the diaper. And again for sleep.</p>
+
+    <p><strong>CribClaw is different.</strong> You send a single message in Telegram, in whatever words come naturally, and the AI figures out the rest. Multiple events from one message. Voice notes if you can't type. Corrections in plain English.</p>
+
+    <p>Add it to a family group chat and both parents can log from the same conversation. CribClaw tracks who logged what, so you always know who did the last feed.</p>
+
+    <p>Your data stays on your machine. A SQLite file. No account, no cloud, no subscription.</p>
+  </div>
+
+  <!-- ---- Versus ---- -->
+  <div class="section">
+    <h2>How it <em>actually</em> compares</h2>
+
+    <table class="vs-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Baby apps</th>
+          <th>CribClaw</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Input</td>
+          <td class="them">Buttons and forms</td>
+          <td class="us">Natural language</td>
+        </tr>
+        <tr>
+          <td>Multi-event</td>
+          <td class="them">One at a time</td>
+          <td class="us">One message, multiple events</td>
+        </tr>
+        <tr>
+          <td>Voice</td>
+          <td class="them">Paid or unavailable</td>
+          <td class="us">Built-in, local Whisper</td>
+        </tr>
+        <tr>
+          <td>Reminders</td>
+          <td class="them">Fixed timers</td>
+          <td class="us">Natural language: &ldquo;remind me 3 hours after each feed&rdquo;</td>
+        </tr>
+        <tr>
+          <td>Multi-caregiver</td>
+          <td class="them">Separate accounts</td>
+          <td class="us">One group chat, both parents</td>
+        </tr>
+        <tr>
+          <td>Privacy</td>
+          <td class="them">Their cloud</td>
+          <td class="us">Your machine, your SQLite</td>
+        </tr>
+        <tr>
+          <td>Exports</td>
+          <td class="them">Premium feature</td>
+          <td class="us">Auto-generated CSVs</td>
+        </tr>
+        <tr>
+          <td>Reports</td>
+          <td class="them">In-app only</td>
+          <td class="us">PNG calendars to your chat</td>
+        </tr>
+        <tr>
+          <td>Migration</td>
+          <td class="them">No import</td>
+          <td class="us">CSV import from Huckleberry, Glow, etc.</td>
+        </tr>
+        <tr>
+          <td>Source</td>
+          <td class="them">Closed</td>
+          <td class="us">AGPL-3.0</td>
+        </tr>
+        <tr>
+          <td>Cost</td>
+          <td class="them">$5&ndash;10/mo</td>
+          <td class="us">Free</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ---- What it tracks ---- -->
+  <div class="section">
+    <h2>11 event types, <em>zero commands</em></h2>
+
+    <p style="color:var(--text-dim); margin-bottom: 24px;">Feed &middot; Diaper &middot; Sleep &middot; Milestone &middot; Pump &middot; Tummy time &middot; Solids &middot; Growth &middot; Bath &middot; Note &middot; and anything else you describe.</p>
+
+    <p style="color:var(--text-dim);">Plus: custom reminders you set in natural language, visual calendar summaries (daily + weekly), pattern detection from your own logged data, multi-caregiver attribution, retroactive corrections with full audit trail, auto-generated CSV exports, and <strong>CSV import from Huckleberry, Glow Baby, and other trackers</strong> so you don't lose your history.</p>
+  </div>
+
+  <!-- ---- How to run it ---- -->
+  <div class="section">
+    <h2>Running in <em>five minutes</em></h2>
+
+    <p style="color:var(--text-dim); margin-bottom: 16px;">Requires <strong>Node.js</strong> &ge; 20, <strong>Docker</strong>, a <strong>Telegram bot token</strong>, and an <strong>Anthropic API key</strong>. Optional: <a href="https://github.com/ggerganov/whisper.cpp" style="color:var(--accent);">whisper.cpp</a> for local voice note transcription.</p>
+
+    <ol class="how-steps">
+      <li><strong>Clone the repo</strong> and install dependencies</li>
+      <li><strong>Create a Telegram bot</strong> via <a href="https://t.me/BotFather" style="color:var(--accent);">@BotFather</a></li>
+      <li><strong>Add your tokens</strong> to <span class="mono" style="font-size:0.85em; color:var(--text-faint);">.env</span> (Telegram bot token and Anthropic API key)</li>
+      <li><strong>Build the container</strong> and start</li>
+    </ol>
+
+    <div class="install-block">
+<pre><span class="cmd">git clone https://github.com/nathanseltzer/cribclaw.git</span>
+<span class="cmd">cd cribclaw && npm install</span>
+<span class="cmd">cp .env.example .env</span>  <span class="cmt"># add tokens</span>
+<span class="cmd">./container/build.sh</span>
+<span class="cmd">npm run dev</span></pre>
+    </div>
+  </div>
+
+  <!-- ---- FAQ ---- -->
+  <div class="section faq">
+    <h2>Frequently asked <em>questions</em></h2>
+
+    <details>
+      <summary>How do I set up CribClaw?</summary>
+      <p>Create a Telegram bot via <a href="https://t.me/BotFather" style="color:var(--accent);">@BotFather</a>, set <code>TELEGRAM_BOT_TOKEN</code> and <code>ANTHROPIC_API_KEY</code> in your <code>.env</code> file, then run <code>npm start</code>. Send the bot a message and it will auto-register your chat. For group chats, add the bot to the group and send any message. See the README for full setup instructions.</p>
+    </details>
+
+    <details>
+      <summary>How do I import data from Huckleberry, Glow, or another tracker?</summary>
+      <p>Export a CSV from your current app, then run:<br>
+      <code>npm run cribclaw:import -- path/to/export.csv</code><br>
+      CribClaw auto-detects Huckleberry, Glow, Baby Tracker, and BabyBuddy formats from the CSV headers. You can also send a CSV file directly in the Telegram chat and it will import automatically.</p>
+    </details>
+
+    <details>
+      <summary>How do I reset all my data?</summary>
+      <p>Stop CribClaw, then delete the database file:<br>
+      <code>rm store/messages.db</code><br>
+      Restart and it creates a fresh database. To reset only baby tracking data (keeping chat history and group registrations), run the SQL commands in the README.</p>
+    </details>
+
+    <details>
+      <summary>What is NanoClaw? How does CribClaw relate to it?</summary>
+      <p>CribClaw is a fork of <a href="https://github.com/qwibitai/nanoclaw" style="color:var(--accent);">NanoClaw</a>, a general-purpose AI agent framework for messaging platforms. NanoClaw provides the infrastructure: Telegram integration, container-based agent execution, task scheduling, and the Claude Agent SDK pipeline. CribClaw adds the baby-specific layer on top: event extraction, structured tracking, visual summaries, feed reminders, and pattern detection. Think of NanoClaw as the engine and CribClaw as the car built on it.</p>
+    </details>
+
+    <details>
+      <summary>Is my data private? What about security?</summary>
+      <p>CribClaw is fully self-hosted. Your data lives in a SQLite file on your machine. Nothing is sent to a third-party server. Message content is sent to the Anthropic API for event extraction (subject to <a href="https://www.anthropic.com/policies/privacy" style="color:var(--accent);">Anthropic's privacy policy</a>), and to the Telegram Bot API for message delivery. No analytics, no tracking, no accounts. You own the database and can export or delete it at any time.</p>
+    </details>
+
+    <details>
+      <summary>Does CribClaw provide medical advice?</summary>
+      <p><strong>No.</strong> CribClaw is a behavioral tracker for informational purposes only. It does not diagnose conditions, recommend treatments, or provide medical guidance. Pattern alerts and age-based insights are general observations, not clinical assessments. Always consult your pediatrician for medical decisions. CribClaw does not track medications. Use your pharmacy or doctor's system for that.</p>
+    </details>
+
+    <details>
+      <summary>What does it cost to run?</summary>
+      <p>CribClaw itself is free and open-source. The costs are: an Anthropic API key (for Claude, which processes your messages, typically a few cents per day for normal family use), and whatever machine you run it on (a Raspberry Pi, an old laptop, a cloud VM, etc.). Telegram is free. There is no subscription.</p>
+    </details>
+
+  </div>
+
+  <!-- ---- Links ---- -->
+  <div class="links">
+    <a href="https://github.com/nathanseltzer/cribclaw"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:6px;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>GitHub</a>
+    <a href="https://youtube.com/@deepcharts"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:6px;"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>@deepcharts</a>
+    <a href="https://x.com/n_seltzer"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:6px;"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>@n_seltzer</a>
+  </div>
+
+  <!-- ---- Footer ---- -->
+  <footer>
+    <p class="disclaimer">CribClaw is not a medical device. It is a behavioral tracker for informational purposes only. Not a substitute for professional medical advice, diagnosis, or treatment.</p>
+    <p>
+      AGPL-3.0 &middot; Built on <a href="https://github.com/qwibitai/nanoclaw" style="color:var(--text-faint);">NanoClaw</a> &middot; Powered by Claude<br>
+      &copy; 2026 CribClaw Contributors
+    </p>
+  </footer>
+
+</div>
+
+</body>
+</html>

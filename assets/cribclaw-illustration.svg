@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">CribClaw Illustration</title>
+  <desc id="desc">A baby crib scene with a friendly assistant claw mascot and floating timeline cards.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f2fbff"/>
+      <stop offset="100%" stop-color="#d7ecff"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f2f8ff"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#8ab6d6" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="700" fill="url(#bg)"/>
+
+  <g opacity="0.22">
+    <circle cx="150" cy="120" r="90" fill="#9dd7ff"/>
+    <circle cx="1060" cy="560" r="130" fill="#87c9ff"/>
+    <circle cx="1020" cy="140" r="65" fill="#b7e5ff"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="180" y="330" width="840" height="220" rx="26" fill="#ffffff"/>
+    <rect x="220" y="360" width="760" height="18" rx="9" fill="#d8e7f7"/>
+    <rect x="220" y="400" width="760" height="18" rx="9" fill="#d8e7f7"/>
+    <rect x="220" y="440" width="760" height="18" rx="9" fill="#d8e7f7"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="140" y="120" width="300" height="145" rx="18" fill="url(#card)"/>
+    <text x="170" y="165" font-size="30" fill="#2a4d69" font-family="Menlo, monospace">2h feed alert</text>
+    <text x="170" y="206" font-size="22" fill="#4f6f8b" font-family="Menlo, monospace">Last feed 9:10 AM</text>
+    <text x="170" y="236" font-size="22" fill="#4f6f8b" font-family="Menlo, monospace">Send log when done</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="760" y="80" width="300" height="175" rx="18" fill="url(#card)"/>
+    <text x="790" y="127" font-size="30" fill="#2a4d69" font-family="Menlo, monospace">Today</text>
+    <text x="790" y="167" font-size="22" fill="#4f6f8b" font-family="Menlo, monospace">Feeds: 6</text>
+    <text x="790" y="198" font-size="22" fill="#4f6f8b" font-family="Menlo, monospace">Diapers: 7</text>
+    <text x="790" y="229" font-size="22" fill="#4f6f8b" font-family="Menlo, monospace">Sleep starts: 3</text>
+  </g>
+
+  <g transform="translate(520 238)" filter="url(#shadow)">
+    <ellipse cx="80" cy="92" rx="86" ry="72" fill="#ffe0b2"/>
+    <circle cx="54" cy="82" r="8" fill="#2b3a42"/>
+    <circle cx="106" cy="82" r="8" fill="#2b3a42"/>
+    <path d="M52 113 Q80 136 108 113" fill="none" stroke="#2b3a42" stroke-width="6" stroke-linecap="round"/>
+    <path d="M6 98 C-40 92 -40 142 8 136" fill="none" stroke="#ffca8a" stroke-width="20" stroke-linecap="round"/>
+    <path d="M154 98 C200 92 200 142 152 136" fill="none" stroke="#ffca8a" stroke-width="20" stroke-linecap="round"/>
+    <path d="M17 136 C-8 171 27 199 52 172" fill="none" stroke="#ffca8a" stroke-width="16" stroke-linecap="round"/>
+    <path d="M143 136 C168 171 133 199 108 172" fill="none" stroke="#ffca8a" stroke-width="16" stroke-linecap="round"/>
+    <path d="M64 30 C67 8 93 8 96 30" fill="none" stroke="#ffca8a" stroke-width="12" stroke-linecap="round"/>
+  </g>
+
+  <text x="600" y="640" text-anchor="middle" font-size="46" fill="#1f3c5a" font-family="Menlo, monospace">CRIBCLAW</text>
+  <text x="600" y="674" text-anchor="middle" font-size="22" fill="#4f6f8b" font-family="Menlo, monospace">Message-first baby timeline assistant</text>
+</svg>

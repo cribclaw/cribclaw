@@ -1,0 +1,10 @@
+# Core code - maintainer only
+/src/ @nathanseltzer
+/container/ @nathanseltzer
+/groups/ @nathanseltzer
+/launchd/ @nathanseltzer
+/package.json @nathanseltzer
+/package-lock.json @nathanseltzer
+
+# Skills - open to contributors
+/.claude/skills/
