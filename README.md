@@ -148,11 +148,7 @@ WantedBy=multi-user.target
 Switching from Huckleberry, Glow Baby, or another tracking app? CribClaw can import your CSV exports.
 
 ```bash
-# Dry run — preview what would be imported
 npm run cribclaw:import -- path/to/export.csv
-
-# Import for real
-npm run cribclaw:import -- path/to/export.csv --apply
 ```
 
 The importer auto-detects the format from column headers. You can also send a CSV file directly in the Telegram chat and it will import automatically.
@@ -166,7 +162,7 @@ Supported formats:
 - **BabyBuddy** — separate CSVs per event type
 - **Generic** — any CSV with recognizable date and event type columns
 
-Options: `--chat-jid <jid>`, `--sender <name>`, `--apply`
+Options: `--chat-jid <jid>`, `--sender <name>`, `--dry-run`
 
 ---
 
