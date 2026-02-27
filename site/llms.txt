@@ -34,5 +34,5 @@ CribClaw is a self-hosted, privacy-first baby tracking system that runs as a Tel
 ## Links
 
 - Website: https://cribclaw.com
-- GitHub: https://github.com/nathanseltzer/cribclaw
+- GitHub: https://github.com/cribclaw/cribclaw
 - License: AGPL-3.0
