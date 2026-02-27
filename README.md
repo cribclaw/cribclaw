@@ -145,29 +145,6 @@ WantedBy=multi-user.target
 
 ## Importing Data from Other Apps
 
-Switching from Huckleberry, Glow Baby, or another tracker? CribClaw can import your historical data from CSV exports.
-
-```bash
-# Preview what would be imported (dry run)
-npx tsx scripts/cribclaw-import-csv.ts your-export.csv
-
-# Import for real
-npx tsx scripts/cribclaw-import-csv.ts your-export.csv --apply
-```
-
-Supported formats (auto-detected from column headers):
-- **Huckleberry** — export via Settings > Export tracking data as CSV
-- **Glow Baby** — contact support@glowing.com for CSV export, or use [glow-export](https://github.com/askerry/glow-export) to convert PDFs
-- **Baby Tracker** — export from app settings
-- **BabyBuddy** — separate CSVs per event type
-- **Generic** — any CSV with recognizable date and event type columns
-
-Options: `--chat-jid <jid>`, `--sender <name>`, `--apply`
-
----
-
-## Importing Data from Other Apps
-
 Switching from Huckleberry, Glow Baby, or another tracking app? CribClaw can import your CSV exports.
 
 ```bash
@@ -178,11 +155,18 @@ npm run cribclaw:import -- path/to/export.csv
 npm run cribclaw:import -- path/to/export.csv --apply
 ```
 
-The importer auto-detects the format from column headers. Supported: Huckleberry, Glow Baby, Baby Tracker, BabyBuddy, and generic CSVs with recognizable date + event columns.
+The importer auto-detects the format from column headers. You can also send a CSV file directly in the Telegram chat and it will import automatically.
 
-To export from your current app:
-- **Huckleberry**: Tap child icon → scroll down → "Export tracking data as CSV"
-- **Glow Baby**: Contact support@glowing.com to request CSV export, or use [glow-export](https://github.com/askerry/glow-export) to convert PDF exports
+> **Important:** Send at least one message to your Telegram bot before running the CLI import. The importer needs your chat ID from the database to associate the data with your chat. If you see "No existing chats found", message your bot first, then re-run the import.
+
+Supported formats:
+- **Huckleberry** — tap child icon → scroll down → "Export tracking data as CSV"
+- **Glow Baby** — contact support@glowing.com for CSV export, or use [glow-export](https://github.com/askerry/glow-export) to convert PDFs
+- **Baby Tracker** — export from app settings
+- **BabyBuddy** — separate CSVs per event type
+- **Generic** — any CSV with recognizable date and event type columns
+
+Options: `--chat-jid <jid>`, `--sender <name>`, `--apply`
 
 ---
 

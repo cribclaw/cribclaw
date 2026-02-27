@@ -54,7 +54,7 @@
       "name": "How do I import data from Huckleberry, Glow, or another tracker?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Export a CSV from your current app, then run: npm run cribclaw:import -- path/to/export.csv. CribClaw auto-detects Huckleberry, Glow, Baby Tracker, and BabyBuddy formats. You can also send a CSV file directly in the Telegram chat."
+        "text": "Export a CSV from your current app, then run: npm run cribclaw:import -- path/to/export.csv. CribClaw auto-detects Huckleberry, Glow, Baby Tracker, and BabyBuddy formats. You can also send a CSV file directly in the Telegram chat. Important: send at least one message to your bot before running the CLI import so it knows your chat ID."
       }
     },
     {
@@ -765,6 +765,7 @@ footer .disclaimer {
       <p>Export a CSV from your current app, then run:<br>
       <code>npm run cribclaw:import -- path/to/export.csv</code><br>
       CribClaw auto-detects Huckleberry, Glow, Baby Tracker, and BabyBuddy formats from the CSV headers. You can also send a CSV file directly in the Telegram chat and it will import automatically.</p>
+      <p><strong>Important:</strong> Send at least one message to your Telegram bot before running the import. The importer needs your chat ID from the database to associate the data correctly. If you import before messaging the bot, the data won't show up in your chat.</p>
     </details>
 
     <details>
